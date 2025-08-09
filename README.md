@@ -98,6 +98,162 @@ Registry pattern: `HKEY_CURRENT_USER\Software\Classes\[type]\shell\BlockerChecke
 - **Mouse Wheel Support**: Smooth scrolling with mouse wheel
 - **Keyboard Navigation**: Arrow keys, Page Up/Down, Home/End for navigation
 
+## Technical Detection Methods
+
+### File Blocking Detection
+
+BlockerChecker uses multiple sophisticated detection methods to identify processes blocking files:
+
+#### 1. **Windows Restart Manager (Primary Method)**
+- **API Used**: `RmStartSession`, `RmRegisterResources`, `RmGetList`
+- **How it works**: 
+  - Registers the target file as a resource to monitor
+  - Gets a comprehensive list of all processes using that specific file
+  - Returns process IDs that have file handles open
+- **Advantage**: Very accurate, low false positives, Windows-native approach
+- **When used**: Primary detection method for all file types
+
+#### 2. **NtQuerySystemInformation (Kernel-Level)**
+- **API Used**: `NtQuerySystemInformation` with `SystemHandleInformation`
+- **How it works**:
+  - Directly queries the Windows kernel for all system handles
+  - Enumerates file handles across all processes
+  - Duplicates handles from other processes to get file paths
+  - Compares file paths with the target file
+- **Advantage**: Can find handles that other methods miss, kernel-level access
+- **When used**: Secondary method for comprehensive detection
+
+#### 3. **File Access Testing**
+- **API Used**: `CreateFile` with exclusive access
+- **How it works**: Attempts to open the file with `GENERIC_READ | GENERIC_WRITE | DELETE` and no sharing
+- **Error Detection**:
+  - `ERROR_SHARING_VIOLATION`: File is being used by another process
+  - `ERROR_LOCK_VIOLATION`: File is locked
+  - `ERROR_ACCESS_DENIED`: Access denied
+- **When used**: Confirms file is actually blocked before detailed scanning
+
+#### 4. **Process Command Line Analysis**
+- **API Used**: `NtQueryInformationProcess` for command line retrieval
+- **How it works**: Checks each process's command line arguments for file path references
+- **When used**: For processes that might be using the file indirectly
+
+### Folder Blocking Detection
+
+For folder detection, BlockerChecker uses enhanced methods to identify processes using folders:
+
+#### 1. **Working Directory Check**
+- **API Used**: `GetCurrentDirectoryW`
+- **How it works**: Checks if any process has the target folder as its current working directory
+- **Detection**: Processes with CWD set to the target folder
+
+#### 2. **Command Line Analysis**
+- **How it works**: Analyzes process command lines for folder path references
+- **Detection**: Processes that were started with parameters pointing to the folder
+
+#### 3. **Process Path Check**
+- **API Used**: `QueryFullProcessImageName`
+- **How it works**: Checks if the process executable is located within the target folder
+- **Detection**: Processes running from within the folder
+
+#### 4. **Loaded Modules Check**
+- **API Used**: `CreateToolhelp32Snapshot` with `TH32CS_SNAPMODULE`
+- **How it works**: Scans all DLLs loaded by each process
+- **Detection**: Processes that have loaded modules (DLLs) from the target folder
+
+#### 5. **Kernel-Level Handle Detection**
+- **API Used**: `NtQuerySystemInformation` with path normalization
+- **How it works**:
+  - Enumerates all file handles in the system
+  - Checks if any handle points to files within the target folder
+  - Normalizes paths (long names, short names, volume GUID paths)
+  - Handles both DOS paths and volume GUID paths
+- **Advantage**: Most comprehensive folder detection method
+
+### Path Normalization and Matching
+
+BlockerChecker uses sophisticated path normalization to ensure accurate detection:
+
+```cpp
+// Normalize target path
+std::wstring norm(fullBuf);
+std::wstring normLower = norm;
+std::transform(normLower.begin(), normLower.end(), normLower.begin(), ::towlower);
+
+// Handle different path formats
+std::wstring shortPath = GetShortPathName(norm);
+std::wstring normGuid = BuildVolumeGuidPath(norm);
+
+// Check for matches in handle paths
+if (handlePathLower.find(normLowerWithSlash) == 0 || 
+    handlePathLower == normLower ||
+    handlePathLower.find(shortPathLower) == 0) {
+    // Found a process with handle in this folder
+}
+```
+
+### False Positive Prevention
+
+To minimize false positives, BlockerChecker implements several filtering mechanisms:
+
+#### 1. **System Service Filtering**
+```cpp
+bool IsSystemService(const std::wstring& processName) {
+    // Filter out svchost.exe and other system services
+    if (processName == L"svchost.exe" || 
+        processName.find(L"svchost") != std::wstring::npos) {
+        return true;
+    }
+    return false;
+}
+```
+
+#### 2. **Temporary File Detection**
+```cpp
+bool IsInTempDirectory(const std::wstring& filePath) {
+    // Be more strict with temp files to reduce false positives
+    return filePath.find(L"\\temp\\") != std::wstring::npos ||
+           filePath.find(L"\\tmp\\") != std::wstring::npos;
+}
+```
+
+#### 3. **Process Priority Calculation**
+```cpp
+int CalculateBlockingPriority(DWORD processId, const std::wstring& processName, const std::wstring& filePath) {
+    // Calculate priority based on process type and file location
+    // Higher priority for user applications, lower for system processes
+}
+```
+
+### Detection Process Flow
+
+#### For Files:
+1. **Try Restart Manager** (most accurate, Windows-native)
+2. **Test file access** (confirm it's actually blocked)
+3. **Use NtQuerySystemInformation** (find all handles)
+4. **Check process command lines** (find indirect usage)
+5. **Filter out system services** (reduce false positives)
+6. **Apply priority scoring** (rank results by relevance)
+
+#### For Folders:
+1. **Check working directories** (processes using folder as CWD)
+2. **Analyze command lines** (processes referencing folder)
+3. **Check process paths** (executables in folder)
+4. **Scan loaded modules** (DLLs loaded from folder)
+5. **Use kernel handle enumeration** (find file handles in folder)
+6. **Apply heuristics** (common processes that use folders)
+7. **Normalize and match paths** (handle different path formats)
+
+### Why This Multi-Layered Approach Works
+
+1. **Comprehensive Coverage**: Multiple detection methods ensure nothing is missed
+2. **Kernel-Level Access**: Direct system handle enumeration catches everything
+3. **Path Normalization**: Handles different path formats (long, short, GUID)
+4. **False Positive Reduction**: Filters out system services and applies heuristics
+5. **Windows-Native APIs**: Uses official Windows APIs for reliability
+6. **Fallback Mechanisms**: If one method fails, others can still find blocking processes
+
+This sophisticated detection system ensures that BlockerChecker can identify virtually any process that's blocking a file or folder, while maintaining high accuracy and low false positive rates.
+
 ## Uninstallation
 
 To remove the context menu item:
