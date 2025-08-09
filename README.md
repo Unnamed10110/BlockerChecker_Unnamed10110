@@ -32,6 +32,27 @@ A C++ GUI application that adds a permanent "Blocker Checker" option to the Wind
 - CMake 3.10 or later
 - Administrator privileges (for first run)
 
+## Usage Demostration (GUI and CLI)
+- GUI
+  <br><br>
+  <img width="447" height="221" alt="image" src="https://github.com/user-attachments/assets/76737b0b-1117-41eb-8546-e9a1b1b40ea0" />
+  <br><br>
+  <img width="300" height="743" alt="image" src="https://github.com/user-attachments/assets/f3d93c53-3888-4af8-b3d3-0e8c816b479e" />
+  <br><br>
+  <img width="754" height="749" alt="image" src="https://github.com/user-attachments/assets/fbae9fec-3f12-4aae-9193-430e8a8df27f" />
+  <br><br>
+- CLI mode
+  <img width="1557" height="311" alt="image" src="https://github.com/user-attachments/assets/d6f38dcd-ee1f-4d04-9a94-d2664f3b5ae9" />
+  <br><br>
+  <img width="1088" height="211" alt="image" src="https://github.com/user-attachments/assets/079f9dcb-22cc-4b1f-876f-5a59757777ee" />
+  <br><br>
+  <img width="1044" height="200" alt="image" src="https://github.com/user-attachments/assets/7eb6b8be-e0ae-4aef-b5c2-375a2fc0469a" />
+  <br><br>
+  <img width="1063" height="255" alt="image" src="https://github.com/user-attachments/assets/a03629a7-83de-4979-89a1-07d02062c522" />
+  <br><br>
+  <img width="1133" height="367" alt="image" src="https://github.com/user-attachments/assets/ccc6762a-321f-4fc8-ae86-8d7802dfc05f" />
+
+  
 ## Building the Application
 
 ### Using the provided batch file
