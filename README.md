@@ -37,6 +37,8 @@ A C++ GUI application that adds a permanent "Blocker Checker" option to the Wind
   <br><br>
   <img width="447" height="221" alt="image" src="https://github.com/user-attachments/assets/76737b0b-1117-41eb-8546-e9a1b1b40ea0" />
   <br><br>
+  <img width="263" height="754" alt="image" src="https://github.com/user-attachments/assets/7a7f58c5-d8f6-40d6-9402-1f70ef01b837" />
+  <br><br>
   <img width="754" height="749" alt="image" src="https://github.com/user-attachments/assets/fbae9fec-3f12-4aae-9193-430e8a8df27f" />
   <br><br>
 - CLI mode
