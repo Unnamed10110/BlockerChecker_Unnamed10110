@@ -1,0 +1,115 @@
+# General OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Logs and dumps
+*.log
+*.dmp
+
+# Environment files
+.env
+.env.*
+
+# Build output directories (common)
+/build/
+/build-*/
+/cmake-build-*/
+/out/
+/bin/
+/obj/
+/lib/
+/dist/
+/Release/
+/Debug/
+/x64/
+/x86/
+/ARM*/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+Testing/
+Makefile
+
+# Ninja generated files
+build.ninja
+rules.ninja
+.ninja_deps
+.ninja_log
+
+# Visual Studio / MSBuild
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.vcproj
+*.user
+*.suo
+*.sdf
+*.opendb
+*.VC.db
+*.VC.VC.opendb
+ipch/
+
+# Visual Studio Code / JetBrains IDEs
+.vscode/
+.idea/
+
+# Compiled object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Static libraries
+*.a
+*.la
+*.lib
+
+# Shared libraries
+*.dll
+*.so
+*.dylib
+*.framework
+
+# Executables / installers
+*.exe
+*.out
+*.app
+*.msi
+*.exp
+
+# Debugging symbols and intermediates
+*.pdb
+*.idb
+*.ilk
+*.map
+*.ipdb
+*.iobj
+*.pch
+*.pchi
+
+# Code coverage
+*.gcda
+*.gcno
+*.gcov
+*.profraw
+*.profdata
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+
